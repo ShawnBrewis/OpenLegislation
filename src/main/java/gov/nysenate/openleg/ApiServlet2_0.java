@@ -87,28 +87,48 @@ public class ApiServlet2_0 extends HttpServlet implements OpenLegConstants {
 				
 				}
 				String format = st.nextToken();
-				
-				req.setAttribute("term",term);
-				
-				SearchResultSet srs = SearchEngine.doSearch(term, start, pageSize, sortField, sortOrder);
-				
-				if (srs != null)
-				{
-					req.setAttribute("results", srs);
-					String viewPath = "/views/search-" + format + DOT_JSP;
+								
+				if(format.equals("html")) {
+					SearchResultSet srs = SearchEngine.doSearch(term, start, pageSize, sortField, sortOrder);
+					
+					if (srs != null)
+					{
+						req.setAttribute("results", srs);
+						String viewPath = "/views/search-" + format + DOT_JSP;
+
+						getServletContext().getRequestDispatcher(viewPath).forward(req, resp);
+						
+					}
+					else
+					{					
+						logger.error("Search Error: " + req.getRequestURI());
+						resp.sendError(500);
+						
+					}
+				}
+				else {
+					
+					req.setAttribute(OpenLegConstants.PAGE_IDX,start + "");
+					
+					req.setAttribute("format", format);
+					req.setAttribute(KEY_TYPE, command);
+					req.setAttribute("term", term);
+
+					String viewPath = ("/views2/v2-api.jsp");
+
 					getServletContext().getRequestDispatcher(viewPath).forward(req, resp);
-					
+
 				}
-				else
-				{					
-					logger.error("Search Error: " + req.getRequestURI());
-					resp.sendError(500);
-					
-				}
+				
+				
+				
 				
 			}
 			else {
 				String key = st.nextToken();
+				
+				req.setAttribute(OpenLegConstants.PAGE_IDX,null);
+				req.setAttribute(OpenLegConstants.PAGE_SIZE,null);
 				
 				String format = "";
 				try {

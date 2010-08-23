@@ -21,11 +21,12 @@ import com.google.gson.JsonPrimitive;
 @SuppressWarnings({"unused"})
 public class JsonConverter {
 	
-//	public static void main(String[] args) throws Exception {
-//		/*bill from db*/
-//		Bill b = PMF.getDetachedBill("S5000");		
-//		System.out.println(getJson(b));
-//		
+	public static void main(String[] args) throws Exception {
+		/*bill from db*/
+		Bill b = PMF.getDetachedBill("S5000");
+
+		System.out.println(getJson(b));
+		
 //		/*calendar from db*/
 //		System.out.println("\n\n-----CALENDAR-----\n\n");
 //		Calendar c = (Calendar)PMF.getDetachedObject(Calendar.class, "id", "cal-active-00060-2009", "no descending");	
@@ -44,7 +45,7 @@ public class JsonConverter {
 //		for(Meeting m:meetings) {
 //			System.out.println(getJson(m));
 //		}
-//	}
+	}
 	
 	/**
 	 * accepts and sends applicable objects to be converted to json via converter(object,list)
@@ -165,7 +166,7 @@ public class JsonConverter {
 						else if(type.equals("String")) {
 							String s;
 							if((s = (String)method.invoke(o)) != null) {
-								root.addProperty(f.getName(), (String)method.invoke(o));
+								root.addProperty(f.getName(), TextFormatter.clean((String)method.invoke(o)));
 							}
 						}
 						else {
@@ -454,7 +455,7 @@ public class JsonConverter {
 		bill_exclude.add("actClause");
 		bill_exclude.add("sortIndex");
 		bill_exclude.add("latestAmendment");
-		bill_exclude.add("votes");
+//		bill_exclude.add("votes");
 		
 		return bill_exclude;
 	}

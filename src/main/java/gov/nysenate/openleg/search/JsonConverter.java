@@ -12,6 +12,7 @@ import gov.nysenate.openleg.model.calendar.Section;
 import gov.nysenate.openleg.model.calendar.Sequence;
 import gov.nysenate.openleg.model.calendar.Supplemental;
 import gov.nysenate.openleg.model.committee.Meeting;
+import gov.nysenate.openleg.xstream.XStreamBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import com.google.gson.JsonPrimitive;
 public class JsonConverter {
 	
 	public static void main(String[] args) throws Exception {
+				
 //		/*bill from db*/
 //		Bill b = PMF.getDetachedBill("S5000");		
 //		System.out.println(getJson(b));

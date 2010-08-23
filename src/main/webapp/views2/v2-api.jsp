@@ -10,13 +10,22 @@ String appPath = request.getContextPath();
 String term = (String)request.getAttribute("term");
 String type = (String)request.getAttribute("type");
 String format = (String)request.getAttribute("format");
+String pageIdx = (String)request.getAttribute("pageIdx");
+String pageSize = (String)request.getAttribute("pageSize");
+
+int start = 0;
+int size = 1;
+
+if(pageIdx == null || pageSize == null) {
+	start = 0;
+	size = 1;
+}
+
+
+
+System.out.println(format + " : " + type + " : " + term);
+
+out.write(XStreamBuilder.writeResponse(format,SearchEngine.getApiV2Search(format,type,term,null,start,size,true)));
+
 
 %>
- <cache:cache key="<%=cacheKey%>" time="<%=cacheTime %>" scope="application">
-<%
-
-out.write(XStreamBuilder.writeResponse(format,SearchEngine.getApiV2Search(format,type,term,null,0,1,true)));
-
-%>
-
-</cache:cache>

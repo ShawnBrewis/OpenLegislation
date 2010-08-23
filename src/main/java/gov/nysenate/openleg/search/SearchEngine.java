@@ -64,6 +64,8 @@ public class SearchEngine implements OpenLegConstants{
 	 //the directory that is used to store a Lucene index
 	 private final  static String indexDir = "/usr/local/openleg/lucene";
 //	private final  static String indexDir = "C:\\n2-lucene\\";
+//	private final static String indexDir = "/Users/jaredwilliams/Documents/workspace/openleg/lucene";
+
 
 	private static DateFormat DATE_FORMAT_MEDIUM = java.text.DateFormat.getDateInstance(DateFormat.MEDIUM);
 	
@@ -912,20 +914,30 @@ public class SearchEngine implements OpenLegConstants{
 	
 	
 	public static SenateResponse getApiV2Search(String codeType, String otype, String oid, String sortField, int start, int numberOfResults, boolean reverseSort) {
-    			
+    					
     	SenateResponse senResp = new SenateResponse();
     			    	
 		try {
 			
-			SearchResultSet srs = doV2Search(
-					((otype != null) ? "otype:" + otype : "") +
-					((oid != null) ? (
-							(otype!=null) ? " AND oid:" : "")+ oid : ""),
-					start, numberOfResults, sortField, reverseSort);
+			SearchResultSet srs = null;
+			
+			if(otype.equals("search")) {
+				srs = doV2Search(oid, start, numberOfResults, sortField, reverseSort);
+			}
+			else {
+				srs = doV2Search(
+						((otype != null) ? "otype:" + otype : "") +
+						((oid != null) ? (
+								(otype!=null) ? " AND oid:" : "")+ oid : ""),
+						start, numberOfResults, sortField, reverseSort);
+			}
+			
+			
 			
 			ArrayList<SearchResult> lst = srs.getResults();
 			
 			for(SearchResult sr:lst) {
+				System.out.println("\n\n\nXML\n" + sr.xml);
 				senResp.addResult((codeType.equals("xml") ? sr.xml : (codeType.equals("json") ? sr.json : "")));
 			}
 			
@@ -944,6 +956,9 @@ public class SearchEngine implements OpenLegConstants{
     
     public static SearchResultSet doV2Search(String searchText, int start, int max, String sortField, boolean reverseSort) throws ParseException, IOException {
 		
+    	System.out.println(searchText + " : " +  start  + " : " + max  + " : " + sortField  + " : " + reverseSort);
+    	
+    	
     	IndexSearcher searcher = openIndex();
 
         Analyzer  analyzer    = new StandardAnalyzer(Version.LUCENE_CURRENT);
@@ -964,7 +979,7 @@ public class SearchEngine implements OpenLegConstants{
 	      
 	      logger.info(numTotalHits + " total matching documents (" + query.toString() + ")");
 	      
-	      collector = TopScoreDocCollector.create(numTotalHits, false);
+	      collector = TopScoreDocCollector.create(start+max, false);
 	      
 	      Sort sort = null;
 	      
