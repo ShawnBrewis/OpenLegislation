@@ -1,5 +1,8 @@
 package gov.nysenate.openleg.util;
 
+import gov.nysenate.openleg.PMF;
+import gov.nysenate.openleg.model.Bill;
+
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,7 +280,7 @@ public class TextFormatter {
 		
 	}
 	
-		public static String clean(String s) {
+	public static String clean(String s) {
     	s = s.replaceAll("&", "&amp;");
 		s = s.replaceAll("'", "&apos;");
 		s = s.replaceAll("<","&lt;");
@@ -286,4 +289,152 @@ public class TextFormatter {
 		
 		return s;
     }
+		
+	public static void main(String[] args) {
+		new TextFormatter().lrsPrinter(null);
+	}
+	
+	
+	public String lrsPrinter(Bill bill) {
+		bill = PMF.getDetachedBill("S66026");
+		
+		StringTokenizer st = new StringTokenizer(bill.getFulltext(), "\n");
+
+
+		boolean redact = false;
+		int r_start = -1;
+		int r_end = -1;
+		boolean cap = false;
+		int capCount = 0;
+		int start = -1;
+		int end = -1;
+
+		while(st.hasMoreTokens()) {
+			String line = st.nextToken();
+			
+			Pattern p = Pattern.compile("^\\s{3,4}\\d{1,2}\\s*");
+			Matcher m = p.matcher(line);
+
+			if(m.find()) {
+				String text = line.substring(m.end());
+				String lineNo = line.substring(m.start(), m.end());
+				
+				char[] textChar = text.toCharArray();
+				
+				for(int i = 0; i < textChar.length; i++) {
+					if(textChar[i] == '[') {
+						redact = true;
+						r_start = i+1;
+					}
+					else if(textChar[i] == ']') {
+						r_end = i;						
+						new TextPoint(r_start,r_end,false);
+						
+						r_start = -1;
+						r_end = -1;
+						redact = false;
+					}
+					
+					if(Character.isUpperCase(textChar[i])) {
+						if(!cap) {
+							cap = true;
+							if(i < 6) {
+								start = 0;
+							}
+							else {
+								start = i;
+							}
+						}
+						capCount++;
+					}
+					else if(Character.isLowerCase(textChar[i])) {
+						if(cap) {
+							if(capCount > 2) {
+								end = i - 1;
+								new TextPoint(start,end,true);
+							}
+							start = -1;
+							end = -1;
+							capCount = 0;
+							cap = false;
+						}
+					}
+				}
+				
+				if(cap) {
+					text += "</u>";
+
+					if(start != -1) {
+						text = text.substring(0,start) + "<u>" + text.substring(start);
+					}
+					else {
+						text = "<u>" + text;
+					}
+				}
+				if(redact) {
+					text += "</del>";
+					
+					if(r_start != -1) {
+						text = text.substring(0,r_start) + "<del>" + text.substring(r_start);
+					}
+					else {
+						text = "<del>" + text;
+					}
+				}
+				
+//				if(start != -1) {
+//					if(cap) {
+//						text += "</u>";
+//					}
+//					else {
+//						text = text.substring(0, end) + "</u>" + text.substring(end);
+//					}
+//					text = text.substring(0,start) + "<u>" + text.substring(start);
+//				}
+//				if(redact) {
+//					if(r_start != -1 && r_end != -1) {
+//						text = text.substring(0, r_end) + "</del>" + text.substring(r_end);
+//						text = text.substring(0,r_start) + "<del>" + text.substring(r_start);
+//						redact = false;
+//					}
+//					else if(r_end != -1) {
+//						text = "<del>" + text.substring(0,r_end) + "</del>" + text.substring(r_end);
+//						redact = false;
+//					}
+//					else if(r_start != -1) {
+//						text = text.substring(0,r_start) + "<del>" + text.substring(r_start) + "</del>" ;
+//					}
+//					else{
+//						text = "<del>" + text + "</del>";
+//					}
+//					r_start = -1;
+//					r_end = -1;
+//				}
+
+				System.out.println(lineNo + text + "\n");
+				
+				start = -1;
+				end = -1;
+				cap = false;
+				capCount = 0;
+			}
+			else {
+				System.out.println(line + "\n");
+			}
+		}
+		
+		return null;
+	}
+	
+	class TextPoint {
+		public int s;
+		public int e;
+		public boolean uOrDel;
+		
+		public TextPoint(int s, int e, boolean uOrDel) {
+			this.s = s;
+			this.e = e;
+			this.uOrDel = uOrDel;
+		}
+	}
 }
