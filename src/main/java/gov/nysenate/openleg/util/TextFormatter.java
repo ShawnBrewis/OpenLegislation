@@ -3,9 +3,16 @@ package gov.nysenate.openleg.util;
 import gov.nysenate.openleg.PMF;
 import gov.nysenate.openleg.model.Bill;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.jsp.JspWriter;
 
 public class TextFormatter {
 
@@ -290,12 +297,7 @@ public class TextFormatter {
 		return s;
     }
 		
-	public static void main(String[] args) {
-		new TextFormatter().lrsPrinter(null);
-	}
-	
-	
-	public String lrsPrinter(Bill bill) {
+	public void lrsPrinter(Bill bill, JspWriter out) {
 		bill = PMF.getDetachedBill("S66026");
 		
 		StringTokenizer st = new StringTokenizer(bill.getFulltext(), "\n");
@@ -308,12 +310,16 @@ public class TextFormatter {
 		int capCount = 0;
 		int start = -1;
 		int end = -1;
+		
+		List<TextPoint> points;
 
 		while(st.hasMoreTokens()) {
 			String line = st.nextToken();
 			
 			Pattern p = Pattern.compile("^\\s{3,4}\\d{1,2}\\s*");
 			Matcher m = p.matcher(line);
+			
+			points = new ArrayList<TextPoint>();
 
 			if(m.find()) {
 				String text = line.substring(m.end());
@@ -328,7 +334,7 @@ public class TextFormatter {
 					}
 					else if(textChar[i] == ']') {
 						r_end = i;						
-						new TextPoint(r_start,r_end,false);
+						points.add(new TextPoint(r_start,r_end,false));
 						
 						r_start = -1;
 						r_end = -1;
@@ -351,7 +357,7 @@ public class TextFormatter {
 						if(cap) {
 							if(capCount > 2) {
 								end = i - 1;
-								new TextPoint(start,end,true);
+								points.add(new TextPoint(start,end,true));
 							}
 							start = -1;
 							end = -1;
@@ -370,6 +376,9 @@ public class TextFormatter {
 					else {
 						text = "<u>" + text;
 					}
+					start = -1;
+					end = -1;
+					capCount = 0;
 				}
 				if(redact) {
 					text += "</del>";
@@ -380,38 +389,27 @@ public class TextFormatter {
 					else {
 						text = "<del>" + text;
 					}
+					r_start = -1;
+					r_end = -1;
 				}
 				
-//				if(start != -1) {
-//					if(cap) {
-//						text += "</u>";
-//					}
-//					else {
-//						text = text.substring(0, end) + "</u>" + text.substring(end);
-//					}
-//					text = text.substring(0,start) + "<u>" + text.substring(start);
-//				}
-//				if(redact) {
-//					if(r_start != -1 && r_end != -1) {
-//						text = text.substring(0, r_end) + "</del>" + text.substring(r_end);
-//						text = text.substring(0,r_start) + "<del>" + text.substring(r_start);
-//						redact = false;
-//					}
-//					else if(r_end != -1) {
-//						text = "<del>" + text.substring(0,r_end) + "</del>" + text.substring(r_end);
-//						redact = false;
-//					}
-//					else if(r_start != -1) {
-//						text = text.substring(0,r_start) + "<del>" + text.substring(r_start) + "</del>" ;
-//					}
-//					else{
-//						text = "<del>" + text + "</del>";
-//					}
-//					r_start = -1;
-//					r_end = -1;
-//				}
+				Collections.reverse(points);
+				for(TextPoint tp:points) {
+					if(tp.s == -1) {
+						tp.s = 0;
+					}
+					
+					text = text.substring(0, tp.e) + (tp.uOrDel ? "</u>" : "</del>") + text.substring(tp.e);
+					text = text.substring(0,tp.s) + (tp.uOrDel ? "<u>" : "<del>") + text.substring(tp.s);
+					
+					
+				}
 
-				System.out.println(lineNo + text + "\n");
+				try {
+					out.write(lineNo + text + "\n");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				
 				start = -1;
 				end = -1;
@@ -419,11 +417,13 @@ public class TextFormatter {
 				capCount = 0;
 			}
 			else {
-				System.out.println(line + "\n");
+				try {
+					out.write(line + "\n");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		
-		return null;
 	}
 	
 	class TextPoint {
