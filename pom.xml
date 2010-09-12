@@ -21,6 +21,18 @@
     	<scope>compile</scope>
     	<optional>false</optional>
     </dependency>
+    <dependency>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>servlet-api</artifactId>
+    	<version>2.5</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>javax.servlet.jsp</groupId>
+    	<artifactId>jsp-api</artifactId>
+    	<version>2.1</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>OpenLegislation</finalName>

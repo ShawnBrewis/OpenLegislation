@@ -62,8 +62,8 @@ public class SearchEngine implements OpenLegConstants{
 	private static IndexSearcher indexSearcher = null;
 	
 	 //the directory that is used to store a Lucene index
-//	 private final  static String indexDir = "/usr/local/openleg/lucene";
-	private final  static String indexDir = "C:\\o-lucene\\";
+	 private final  static String indexDir = "/usr/local/openleg/lucene";
+//	private final  static String indexDir = "C:\\o-lucene\\";
 //	private final static String indexDir = "/Users/jaredwilliams/Documents/workspace/openleg/lucene";
 
 
