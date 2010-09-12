@@ -1,5 +1,4 @@
 <%@ page language="java" import="java.util.*, java.text.*,java.io.*,gov.nysenate.openleg.*,gov.nysenate.openleg.model.*" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://www.opensymphony.com/oscache" prefix="cache" %>
 <%
 
 String appPath = request.getContextPath();
@@ -14,13 +13,7 @@ String searchPath = appPath + "/committee";
 </jsp:include>
  	<h2>Committees</h2>
 
- <%
- String cacheKey = "comm-list";
- int cacheTime = OpenLegConstants.DEFAULT_CACHE_TIME;
- 
-  %>
-   <cache:cache key="<%=cacheKey%>" scope="application">
- 
+
  <div id="content">
  
 <%
@@ -51,9 +44,7 @@ View:
 <%
 }
  %>	
-	
 </div>
- </cache:cache>
    
  <jsp:include page="/footer.jsp"/>
    

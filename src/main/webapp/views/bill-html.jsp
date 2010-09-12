@@ -1,5 +1,4 @@
 <%@ page language="java" import="javax.jdo.*,java.util.*,java.text.*,gov.nysenate.openleg.*,gov.nysenate.openleg.search.*,gov.nysenate.openleg.util.*,gov.nysenate.openleg.model.*,gov.nysenate.openleg.model.committee.*,gov.nysenate.openleg.model.calendar.*" contentType="text/html" pageEncoding="utf-8"%>
-<%@ taglib uri="http://www.opensymphony.com/oscache" prefix="cache" %>
 <%
 
 String cacheKey = (String)request.getAttribute("path");
@@ -10,7 +9,6 @@ String appPath = request.getContextPath();
 String term = (String)request.getAttribute("term");
 
 %>
- <cache:cache key="<%=cacheKey%>" time="<%=cacheTime %>" scope="application">
 <%
 
 CachedContentManager.fillCache(request);
@@ -639,7 +637,6 @@ if (vote.getVoteType() == Vote.VOTE_TYPE_COMMITTEE)
 var disqus_url = "http://open.nysenate.gov/legislation/api/html/bill/<%=bill.getSenateBillNo()%>";
 //var disqus_identifier = "http://open.nysenate.gov/legislation/api/1.0/html/bill/<%=bill.getSenateBillNo()%>";
  </script>
-</cache:cache>
   
 <div id="comments">
 <b><p>*By contributing or voting you agree to the <a href = "http://nysenate.gov/legal">Terms of Participation</a> and <a href = "http://www.nysenate.gov/privacy-policy">Privacy Policy</a> and verify you are over 13.</p></b>
